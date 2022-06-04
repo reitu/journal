@@ -1,12 +1,15 @@
 <template>
   <JournalView />
+  <!-- <EntryView /> -->
 </template>
 
 <script>
 import JournalView from '@/views/JournalView.vue'
+// import EntryView from '@/views/EntryView.vue'
 export default { //must have this!! cos must let programme know that the app.vue comes with the journal view
   components: {
-    JournalView 
+    JournalView, 
+    // EntryView
   }
 }
 </script>
