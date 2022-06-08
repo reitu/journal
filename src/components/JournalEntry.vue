@@ -1,34 +1,19 @@
 <template>
     <div class="entry">
-
-        <div>
-                {{ entry.date }}
-        </div>
        
         <details ref="details" class="input-sec">
-            <summary  contenteditable="true" class="title" @input="editTitle">
-                {{ entry.title }}
+            <summary>
+                <span class="title" @input="editTitle" contenteditable="true">{{ entry.title }}</span>
+                <div class="date">{{ entry.date }}</div>
             </summary>
-            <!-- <p id="date">
-                {{ entry.date }}
-            </p> -->
             <p contenteditable="true" class="content" @input="editContent">
                 {{ entry.content }}
             </p>
         </details>
-         <button @click="openDetail">
-            Edit
-        </button>
- 
-        <div id="btn-sec">
-            <!-- <button  onclick=openDetail(1)>
-                Edit
-            </button> -->
-            <button @click='$emit("delete", entry.id)'>
-                Delete
-            </button>
+        <div class="actions">
+            <button @click="openDetail">edit</button>
+            <button @click='$emit("delete", entry.id)'>delete</button>
         </div>
-        
     </div>
 
  <!-- //edit and delete the entry
@@ -67,29 +52,12 @@ export default {
 
 
 
-<style>
+<style lang="scss" scoped>
 .entry {
-    border-bottom: grey solid 0.5px;
     display: flex;
     justify-content: space-between;
-
-
-}
-
-#title {
-    font-weight: bold;
-}
-
-#input-sec {
-    
-   
-}
-
-#btn-sec {
-    display: flex;
-    justify-content: space-evenly;
-    padding-top: 20px;
-
+    align-items: flex-start;
+    gap: 4px;
 }
 
 details {
@@ -97,18 +65,39 @@ details {
     text-align: left;
 }
 
-details > summary {
-  padding: 4px;
-  background-color: #eeeeee;
-  border: none;
-  box-shadow: 1px 1px 2px #bbbbbb;
-  cursor: pointer;
+.date {
+    font-size: 14px;
 }
 
-details > p {
-  background-color: #eeeeee;
-  padding: 4px;
-  margin: 0;
-  box-shadow: 1px 1px 2px #bbbbbb;
+.title {
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
+details {
+    border: grey solid 1px;
+    border-radius: 4px;
+    &:hover {
+        outline: #a7c5fa solid 2px;
+    }
+
+    summary {
+        padding: 12px;
+        cursor: pointer;
+    }
+
+    p {
+        padding: 4px;
+        margin: 0;
+        border-top: grey solid 0.5px;
+        padding: 12px;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 4px;
 }
 </style>
+
+

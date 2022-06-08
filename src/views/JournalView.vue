@@ -1,89 +1,89 @@
 <template>
-
+    <header>
+        <h1>My Journal</h1>
+        <p>{{ currentDate }}</p>
+    </header>
     <div class="main">
-        <h1>
-            My Journal
-        </h1>
-        <p>
-            {{ currentDate }}
-        </p>
-        <div class="inputs">
-            <div>
-                <input id="title" v-model="entry.title" placeholder="Title" name="Title" />
+        <div class="form">
+            <input v-model="title" placeholder="Title" name="title" />
+            <textarea v-model="content" placeholder="Today I.." name="content" required></textarea>
+            <button @click="addEntry()">Add</button>
+        </div>
+        <div class="entries">
+            <div class="pagination">
+                <button :disabled="page == 1" @click="--page">previous</button>
+                <button
+                    v-for="index in lastPage"
+                    :key="'pagination' + index"
+                    :disabled="page == index"
+                    @click="page = index"
+                >
+                    {{index}}
+                </button>
+
+                <button :disabled="page == lastPage" @click="++page">next</button>
             </div>
-            <div>
-                <textarea id="content" v-model="entry.content" placeholder="Today I.." required></textarea>
-            </div>
-            <div>
-                <button id="btnAdd" @click="addEntry">Add</button>
+            <div class="entries-list">
+                <JournalEntry
+                    v-for="(entry) in pageEntries"
+                    :key="entry.id"
+                    :entry="entry"
+                    @delete="deleteEntry"
+                    @titleEdit="updateTitle"
+                    @contentEdit="updateContent"
+                />
             </div>
         </div>
-        <!-- <a button emits data out/emits an event: THIS IS A NOTE" /> -->
-        <Entry v-for="(entry) in entries" :key="entry.id" :entry="entry" @delete="deleteEntry" @titleEdit="updateTitle"
-            @contentEdit="updateContent" />
-
     </div>
-     <!-- <div v-for="(entry) in entries" :key="entry.id" :entry="entry" class="posts">
-           <a :href="`${entry.title}`">{{ entry.title }}</a>
-            <a href="http://localhost:8081/entry" @click='$emit("showEntry",entry.id )'>{{ entry.title }}</a>
-    </div> -->
-
 </template>
 
-
-
 <script>
-import Entry from '@/components/Entry.vue'
+import JournalEntry from '@/components/JournalEntry.vue'
 
 export default {
-    //emits: 'showEntry',
     name: 'JournalView',
     components: {
-        Entry
-    },
+    JournalEntry
+},
     data() {
         return {
-            entry: {
-                id: undefined,
-                title: " ",
-                content: " ",
-                //contentMin: " ",
-                date: undefined,
-            },
+            title: "",
+            content: "",
             entries: [],
-            currentDate: this.getDate()
+            currentDate: this.getDate(),
+            page: 1,
+            //page 0 being the originial first page else x = -1
+            max: 5
         }
     },
-    methods: {
-        createEntry() {
-            let newEntry = Object.assign({}, this.entry);
-            newEntry.id = Math.floor(Math.random() * 100);
-            //newEntry.date = new Date()
-            // var d = new Date();
-            // var dateToday = d.getDate();
-            // var month = dateToday.getMonth() + 1; // Since getMonth() returns month from 0-11 not 1-12
-            // var year = dateToday.getFullYear();
-            // //newEntry.contentMin = newEntry.content.substring(0, 50),
-            //     console.log(newEntry)
-            //     var date = dateToday + "/" + month + "/" + year;
-            //     newEntry.date= date
-            let now = new Date().toLocaleDateString('en-us', { weekday:"long", month:"long", day:"numeric", year:"numeric"});
-            console.log(now)
-            newEntry.date=now
-            //console.log("the min text is", newEntry.contentMin)
-            return newEntry
-
+    computed: {
+        lastPage () {
+            return Math.ceil((this.entries.length || 1) / this.max)
         },
-        addEntry() {
-            this.entries.push(this.createEntry())
-            console.log(this.entries)
-            this.entries
-            this.entry = {
-                title: " ",
-                content: " ",
-                //contentMin: " ",
-                date: undefined,
+        pageEntries() {
+            let startFrom = (this.page - 1) * this.max
+
+            return this.entries.slice(startFrom, startFrom + this.max)
+        }
+    },
+    mounted () {
+    },
+    methods: {
+        addEntry(title = this.title, content = this.content) {
+            if (title == "") return 
+            if (content == "") return 
+
+            var entry = {
+                title: title,
+                content: content,
+                id: Math.floor(Math.random() * 100),
+                date: new Date().toLocaleDateString('en-us', { weekday: "long", month: "long", day: "numeric", year: "numeric" })
             }
+
+            this.entries.unshift(entry)
+
+            this.title = ""
+            this.content = ""
         },
         getDate() {
             var today = new Date()
@@ -91,83 +91,95 @@ export default {
             return date
         },
         deleteEntry(event) {
-            console.log("deleting here", event)
             this.entries = this.entries.filter(item => item.id != event);
-            console.log(this.entries)
-
         },
         updateTitle(title, id) {
-            console.log("hello TITLE after clicking on the vue", title)
-            console.log("this is the id i hVA E PASSED", id)
             const found = this.entries.find(element => element.id === id);
             found.title = title
-            console.log("this is found", found.title)
-            console.log(this.entries)
-            console.log("found is above")
-
-            //this above is the entry object 
-
-
-
         },
         updateContent(content, id) {
-            console.log("hello CONTENT after clicking on the vue", content)
-            console.log("this is the id i hVA E PASSED", id)
             const found = this.entries.find(element => element.id === id);
             found.content = content
-            //var index = obj.findIndex(e => e.name === 'John');
-            // obj.forEach(o => {
-            //     if (o.name === 'John') {
-            //         console.log(o);
-            //     }
-            // });
         }
     }
-
-
-
-
 }
-
 </script>
 
+<style lang="scss" scoped>
+header {
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    padding: 24px;
 
-<style>
-.container {
-    display: flex;
-
+    h1 {
+        margin:0;
+    }
+    p {
+        margin:0;
+    }
 }
 
 .main {
     font-family: 'Courier New', Courier, monospaces;
-}
-
-
-.inputs {
-
-    width: 100%;
-    height: 100%;
-    margin: auto;
-    margin-bottom: 24px;
-
-
+    display: flex;
+    padding: 16px;
+    gap: 16px;
 
 }
 
-#title {
-    width: 800px;
-    height: 24px;
-    margin: 8px;
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 26%;
+
+    input {
+        height: 36px;
+        line-height: 36px;
+        padding: 0 8px;
+        border-radius: 4px;
+        border: 1px solid #CCC;
+    }
+
+    textarea {
+        height: 60px;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #CCC;
+    }
+
+    button {
+        padding: 8px;
+        background: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
 }
 
-#content {
+@media only screen and (max-width: 900px) {
+    .main {
+        flex-direction: column;
+    }
 
-    min-width: 800px;
-    min-height: 64px;
-    margin: 8px;
+    .form {
+        width: auto;
+    }
 }
 
-#btnAdd {
-    width: 800px;
+.entries {
+    flex: 1;
+    .pagination {
+        padding: 24px 0 32px;
+        display: flex;
+        gap: 4px;
+        justify-content: flex-end;
+    }
+
+    .entries-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
 }
 </style>
